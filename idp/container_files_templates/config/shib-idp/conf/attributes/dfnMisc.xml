@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+                           
+       default-init-method="initialize"
+       default-destroy-method="destroy">
+
+    <!-- diverse Attribute, die im Kontext der DFN-AAI weiterhin von Belang sind -->
+
+    <bean parent="shibboleth.TranscodingRuleLoader">
+    <constructor-arg>
+    <list>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonTargetedID</prop>
+                    <prop key="transcoder">SAML2XMLObjectTranscoder</prop>
+                    <prop key="saml2.name">urn:oid:1.3.6.1.4.1.5923.1.1.1.10</prop>
+                    <prop key="displayName.de">Targeted ID (pseudonyme Kennung)</prop>
+                    <prop key="displayName.en">Targeted ID (pseudonyous ID)</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">memberOf</prop>
+                    <prop key="transcoder">SAML2StringTranscoder</prop>
+                    <prop key="saml2.name">urn:oid:1.2.840.113556.1.2.102</prop>
+                    <prop key="displayName.de">Gruppenmitgliedschaften</prop>
+                    <prop key="displayName.en">Group Memberships</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">bwidmOrgId</prop>
+                    <prop key="transcoder">SAML2StringTranscoder</prop>
+                    <prop key="saml2.name">http://bwidm.de/bwidmOrgId</prop>
+                    <prop key="displayName.de">bwIDM Org ID</prop>
+                    <prop key="displayName.en">bwIDM Org ID</prop>
+                    <!-- Zur Belegung dieses Attributs siehe unter https://www.bwidm.de/attribute.php#Organisationsk%C3%BCrzel -->
+                </props>
+            </property>
+        </bean>
+
+    </list>
+    </constructor-arg>
+    </bean>
+    
+</beans>

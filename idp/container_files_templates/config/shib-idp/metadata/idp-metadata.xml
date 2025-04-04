@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ This is example metadata only. Do *NOT* supply it as is without review and do *NOT* provide it in real time to your partners.
+-->
+<EntityDescriptor 
+    xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:req-attr="urn:oasis:names:tc:SAML:protocol:ext:req-attr"
+    entityID="${IDP_ENTITY_ID}" 
+>
+    <!-- Identity Provider Details -->
+    <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <Extensions>
+            <shibmd:Scope regexp="false">${IDP_SCOPE}</shibmd:Scope>
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="de">${IDP_METADATA_DISPLAYNAME_DE}</mdui:DisplayName>
+                <mdui:DisplayName xml:lang="en">${IDP_METADATA_DISPLAYNAME_EN}</mdui:DisplayName>
+                <mdui:Description xml:lang="de">${IDP_METADATA_DESCRIPTION_DE}</mdui:Description>
+                <mdui:Description xml:lang="en">${IDP_METADATA_DESCRIPTION_EN}</mdui:Description>
+                <mdui:Logo width="${IDP_METADATA_LOGO_WIDTH}" height="${IDP_METADATA_LOGO_HEIGHT}">${IDP_METADATA_LOGO_URL}</mdui:Logo>
+                <mdui:InformationURL xml:lang="de">${IDP_METADATA_INFORMATION_URL_DE}</mdui:InformationURL>
+                <mdui:InformationURL xml:lang="en">${IDP_METADATA_INFORMATION_URL_EN}</mdui:InformationURL>
+                <mdui:PrivacyStatementURL xml:lang="de">${IDP_METADATA_PRIVACYSTATEMENT_URL_DE}</mdui:PrivacyStatementURL>
+                <mdui:PrivacyStatementURL xml:lang="en">${IDP_METADATA_PRIVACYSTATEMENT_URL_EN}</mdui:PrivacyStatementURL>
+            </mdui:UIInfo>
+        </Extensions>
+        <KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:KeyName>${IDP_HOSTNAME}</ds:KeyName>
+                    <ds:X509SubjectName>CN=${IDP_HOSTNAME}</ds:X509SubjectName>
+                    <ds:X509Certificate></ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <KeyDescriptor use="encryption">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:KeyName>${IDP_HOSTNAME}</ds:KeyName>
+                    <ds:X509SubjectName>CN=${IDP_HOSTNAME}</ds:X509SubjectName>
+                    <ds:X509Certificate></ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${IDP_HOSTNAME_SOAP}/idp/profile/SAML2/SOAP/ArtifactResolution"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/POST-SimpleSign/SLO"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/POST/SLO"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/Redirect/SLO"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${IDP_HOSTNAME_SOAP}/idp/profile/SAML2/SOAP/SLO"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/POST-SimpleSign/SSO" />
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/POST/SSO" />
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${IDP_HOSTNAME}/idp/profile/SAML2/Redirect/SSO" />
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${IDP_HOSTNAME_SOAP}/idp/profile/SAML2/SOAP/ECP"/>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+    </IDPSSODescriptor>
+    <!-- Optional Attribute authority descriptor (SAML2 Queries) -->
+    <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <Extensions>
+            <shibmd:Scope regexp="false">${IDP_SCOPE}</shibmd:Scope>
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="de">${IDP_METADATA_DISPLAYNAME_DE}</mdui:DisplayName>
+                <mdui:DisplayName xml:lang="en">${IDP_METADATA_DISPLAYNAME_EN}</mdui:DisplayName>
+                <mdui:Description xml:lang="de">${IDP_METADATA_DESCRIPTION_DE}</mdui:Description>
+                <mdui:Description xml:lang="en">${IDP_METADATA_DESCRIPTION_EN}</mdui:Description>
+                <mdui:Logo width="${IDP_METADATA_LOGO_WIDTH}" height="${IDP_METADATA_LOGO_HEIGHT}">${IDP_METADATA_LOGO_URL}</mdui:Logo>
+                <mdui:InformationURL xml:lang="de">${IDP_METADATA_INFORMATION_URL_DE}</mdui:InformationURL>
+                <mdui:InformationURL xml:lang="en">${IDP_METADATA_INFORMATION_URL_EN}</mdui:InformationURL>
+                <mdui:PrivacyStatementURL xml:lang="de">${IDP_METADATA_PRIVACYSTATEMENT_URL_DE}</mdui:PrivacyStatementURL>
+                <mdui:PrivacyStatementURL xml:lang="en">${IDP_METADATA_PRIVACYSTATEMENT_URL_EN}</mdui:PrivacyStatementURL>
+            </mdui:UIInfo>
+        </Extensions>
+        <KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:KeyName>${IDP_HOSTNAME}</ds:KeyName>
+                <ds:X509SubjectName>CN=${IDP_HOSTNAME}</ds:X509SubjectName>
+                <ds:X509Data>
+                    <ds:X509Certificate></ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <KeyDescriptor use="encryption">
+            <ds:KeyInfo>
+                <ds:KeyName>${IDP_HOSTNAME}</ds:KeyName>
+                <ds:X509SubjectName>CN=${IDP_HOSTNAME}</ds:X509SubjectName>
+                <ds:X509Data>
+                    <ds:X509Certificate></ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${IDP_HOSTNAME_SOAP}/idp/profile/SAML2/SOAP/AttributeQuery"/>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+    </AttributeAuthorityDescriptor>
+    <!-- Organization -->
+    <Organization>
+		<OrganizationDisplayName xml:lang="de">${IDP_METADATA_DISPLAYNAME_ORGANIZATION_DE}</OrganizationDisplayName>
+		<OrganizationDisplayName xml:lang="en">${IDP_METADATA_DISPLAYNAME_ORGANIZATION_EN}</OrganizationDisplayName>
+		<OrganizationURL xml:lang="de">${IDP_METADATA_DISPLAYNAME_ORGANIZATION_URL_DE}</OrganizationURL>
+		<OrganizationURL xml:lang="en">${IDP_METADATA_DISPLAYNAME_ORGANIZATION_URL_EN}</OrganizationURL>
+	</Organization>
+    <!-- Contacts -->
+	<ContactPerson contactType="administrative">
+		<GivenName>${IDP_METADATA_CONTACTPERSON_ADMINISTRATIVE_GIVENNAME}</GivenName>
+		<SurName>${IDP_METADATA_CONTACTPERSON_ADMINISTRATIVE_SURNAME}</SurName>
+		<EmailAddress>${IDP_METADATA_CONTACTPERSON_ADMINISTRATIVE_EMAIL}</EmailAddress>
+	</ContactPerson>
+	<ContactPerson contactType="other">
+		<GivenName>${IDP_METADATA_CONTACTPERSON_OTHER_GIVENNAME}</GivenName>
+		<SurName>${IDP_METADATA_CONTACTPERSON_OTHER_SURNAME}</SurName>
+		<EmailAddress>mailto:${IDP_METADATA_CONTACTPERSON_OTHER_EMAIL}</EmailAddress>
+	</ContactPerson>
+	<ContactPerson contactType="support">
+		<GivenName>${IDP_METADATA_CONTACTPERSON_SUPPORT_GIVENNAME}</GivenName>
+		<SurName>${IDP_METADATA_CONTACTPERSON_SUPPORT_SURNAME}</SurName>
+		<EmailAddress>mailto:${IDP_METADATA_CONTACTPERSON_SUPPORT_EMAIL}</EmailAddress>
+	</ContactPerson>
+    	<ContactPerson contactType="security">
+		<GivenName>${IDP_METADATA_CONTACTPERSON_SECURITY_GIVENNAME}</GivenName>
+		<SurName>${IDP_METADATA_CONTACTPERSON_SECURITY_SURNAME}</SurName>
+		<EmailAddress>mailto:${IDP_METADATA_CONTACTPERSON_SECURITY_EMAIL}</EmailAddress>
+	</ContactPerson>
+	<ContactPerson contactType="technical">
+		<GivenName>${IDP_METADATA_CONTACTPERSON_TECHNICAL_GIVENNAME}</GivenName>
+		<SurName>${IDP_METADATA_CONTACTPERSON_TECHNICAL_SURNAME}</SurName>
+		<EmailAddress>mailto:${IDP_METADATA_CONTACTPERSON_TECHNICAL_EMAIL}</EmailAddress>
+	</ContactPerson>
+</EntityDescriptor>

@@ -1,0 +1,59 @@
+services:
+  # IDP service with external sql and external ldap
+  idp:
+    restart: always
+    expose:
+      - "${IDP_HOST_TOMCAT_HTTP_PORT}"
+      - "${IDP_HOST_TOMCAT_AJP_PORT}"
+    build:
+      context: ./idp/
+      args:
+        CONTAINER_UID: ${CONTAINER_UID}
+        CONTAINER_GID: ${CONTAINER_GID}
+        CONTAINER_USER_NAME: ${CONTAINER_USER_NAME}
+        CONTAINER_USER_GROUPNAME: ${CONTAINER_USER_GROUPNAME}
+    user: 
+      ${CONTAINER_UID}:${CONTAINER_GID}
+    extra_hosts:
+        - host.docker.internal:host-gateway
+        - ${IDP_HOSTNAME}:host-gateway
+    volumes:
+      # Shibboleth IDP
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/conf:/opt/shibboleth-idp/conf
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/edit-webapp:/opt/shibboleth-idp/edit-webapp
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/flows:/opt/shibboleth-idp/flows
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/messages:/opt/shibboleth-idp/messages
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/metadata:/opt/shibboleth-idp/metadata
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/credentials/secrets.properties:/opt/shibboleth-idp/credentials/secrets.properties
+      # Tomcat
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/views:/opt/shibboleth-idp/views
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_TOMCAT}:/opt/tomcat/conf
+      # Secrets (e.g. keystores and certs)
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_AAI}:/opt/certs/aai
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_TOMCAT}:/opt/certs/tomcat
+      #- ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_REVERSEPROXY}:/opt/certs/reverse-proxy
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_SHIBIDP}:/opt/certs/shib-idp
+      # Reverse proxy
+      - /etc/letsencrypt/live/${IDP_HOSTNAME}/cert.pem:/opt/certs/reverse-proxy/cert.pem
+      - /etc/letsencrypt/live/${IDP_HOSTNAME}/chain.pem:/opt/certs/reverse-proxy/chain.pem
+      - /etc/letsencrypt/live/${IDP_HOSTNAME}/privkey.pem:/opt/certs/reverse-proxy/privkey.pem
+      # Example: Legacy/Migration from IDP v4 - mount current saml certificates into docker
+      ## Encryption
+      - /etc/pki/tls/certs/idp-pub.pem:/opt/certs/shib-idp-v4/idp-encryption.crt:ro
+      - /etc/pki/tls/private/idp-key.pem:/opt/certs/shib-idp-v4/idp-encryption.key:ro
+      - /etc/pki/tls/certs/idp-pub.pem:/opt/certs/shib-idp-v4/idp-encryption.crt.next:ro
+      - /etc/pki/tls/private/idp-key.pem:/opt/certs/shib-idp-v4/idp-encryption.key.next:ro
+      ## Signing
+      - /etc/pki/tls/certs/idp-pub.pem:/opt/certs/shib-idp-v4/idp-signing.crt:ro
+      - /etc/pki/tls/private/idp-key.pem:/opt/certs/shib-idp-v4/idp-signing.key:ro
+      # Logs
+      - ${IDP_HOST_COMMON_LOG_PATH}/shib-idp:/opt/shibboleth-idp/logs
+      - ${IDP_HOST_COMMON_LOG_PATH}/tomcat:/opt/tomcat/logs
+    networks:
+      - front
+    ports:
+      - ${IDP_HOST_TOMCAT_HTTP_PORT}:${IDP_CONTAINER_TOMCAT_CONNECTOR_HTTP_PORT}
+      - ${IDP_HOST_TOMCAT_AJP_PORT}:${IDP_CONTAINER_TOMCAT_CONNECTOR_AJP_PORT}
+networks:
+  front:
+    driver: bridge

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+        xmlns="urn:mace:shibboleth:2.0:afp"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd">
+
+    <!-- 
+        NOTE: 
+        Some AttributeFilterPolicy rules contain a rule to restrict attribute queries
+        This is not strictly necessary, as these are also filtered out with deny rules, 
+        but has been retained as a precaution.
+    -->
+
+    <!-- 
+       # REFEDS Assurance Framework
+       Reliability information is not personalised and should be transmitted to every SP 
+    -->  
+   <AttributeFilterPolicy id="ReleaseAssuranceToAnyone">
+        <PolicyRequirementRule xsi:type="ANY" />
+        <AttributeRule attributeID="eduPersonAssurance" permitAny="true" />
+   </AttributeFilterPolicy>
+
+    <!-- 
+       # SAML: SUBJECT-ID and PAIRWISE-ID
+    -->
+	<AttributeFilterPolicy id="releaseSubjectId">
+        <PolicyRequirementRule xsi:type="AND"> 
+                <Rule xsi:type="EntityAttributeExactMatch"
+                    attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                    attributeValue="subject-id" />
+        </PolicyRequirementRule>
+        <AttributeRule attributeID="samlSubjectID" permitAny="true"/>
+    </AttributeFilterPolicy>  
+	
+	<AttributeFilterPolicy id="releasePairwiseId">
+        <PolicyRequirementRule xsi:type="AND"> 
+             <Rule xsi:type="OR">
+                <Rule xsi:type="EntityAttributeExactMatch"
+                    attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                    attributeValue="pairwise-id" />
+                <Rule xsi:type="EntityAttributeExactMatch"
+                    attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                    attributeValue="any" />
+             </Rule>
+        </PolicyRequirementRule>
+        <AttributeRule attributeID="samlPairwiseId" permitAny="true"/>
+    </AttributeFilterPolicy>
+
+    <!--
+        # ENTITY CATEGORIES 
+    -->
+
+    <!-- 
+        ## Anonymous access entity category
+    -->
+    <AttributeFilterPolicy id="anonymous_access">
+        <PolicyRequirementRule xsi:type="AND">
+			<Rule xsi:type="EntityAttributeExactMatch" 
+				  attributeName="http://macedir.org/entity-category" 
+				  attributeValue="https://refeds.org/category/anonymous" />
+        </PolicyRequirementRule>
+        <AttributeRule attributeID="schacHomeOrganization"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+        <AttributeRule attributeID="eduPersonScopedAffiliation"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+    </AttributeFilterPolicy>
+
+    <!-- 
+        ## Pseudonymous access entity category
+    -->
+    <AttributeFilterPolicy id="pseudonymous_access">
+        <PolicyRequirementRule xsi:type="AND">
+			<Rule xsi:type="EntityAttributeExactMatch" 
+				  attributeName="http://macedir.org/entity-category" 
+				  attributeValue="https://refeds.org/category/pseudonymous" />
+        </PolicyRequirementRule>
+        <AttributeRule attributeID="samlPairwiseID" permitAny="true" />
+        <AttributeRule attributeID="eduPersonAssurance" permitAny="true" /> 
+        <AttributeRule attributeID="schacHomeOrganization"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+        <AttributeRule attributeID="eduPersonScopedAffiliation"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+    </AttributeFilterPolicy>
+
+    <!-- 
+        ## Personalized access entity category
+    -->
+    
+    <AttributeFilterPolicy id="personalized_access">
+        <PolicyRequirementRule xsi:type="AND">
+			<Rule xsi:type="EntityAttributeExactMatch" 
+				  attributeName="http://macedir.org/entity-category" 
+				  attributeValue="https://refeds.org/category/personalized" />
+        </PolicyRequirementRule>
+            <AttributeRule attributeID="samlSubjectID" permitAny="true"/>
+            <AttributeRule attributeID="eduPersonAssurance" permitAny="true"/>
+            <AttributeRule attributeID="schacHomeOrganization"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+            <AttributeRule attributeID="eduPersonScopedAffiliation"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+            <AttributeRule attributeID="mail"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+            <AttributeRule attributeID="displayName"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+            <AttributeRule attributeID="givenName"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+            <AttributeRule attributeID="sn"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule> 
+    </AttributeFilterPolicy>
+
+    <!-- 
+        ## Research & Scholarship entity category
+    -->
+	<AttributeFilterPolicy id="releaseToRandS">
+        <PolicyRequirementRule xsi:type="AND">
+			<Rule xsi:type="EntityAttributeExactMatch" 
+				  attributeName="http://macedir.org/entity-category" 
+				  attributeValue="http://refeds.org/category/research-and-scholarship" />
+        </PolicyRequirementRule>
+	   <AttributeRule attributeID="eduPersonPrincipalName" permitAny="true" />
+       <AttributeRule attributeID="eduPersonScopedAffiliation"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+	   <!--<AttributeRule attributeID="eduPersonTargetedID"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>-->
+	   <AttributeRule attributeID="givenName"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+	   <AttributeRule attributeID="sn"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+	   <AttributeRule attributeID="displayName"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+	   <AttributeRule attributeID="mail"><PermitValueRule xsi:type="AttributeInMetadata"/></AttributeRule>
+	</AttributeFilterPolicy>
+
+    
+    <!-- SECTION: Test SPs -->
+
+    <!-- Resolvertest /idp/profile/admin/resolvertest?requester=https://your-staging-sp.example.org/shibboleth&principal=ACCOUNT -->
+    <AttributeFilterPolicy id="TEST-SPs">
+        <PolicyRequirementRule xsi:type="OR">
+            <Rule xsi:type="Requester" value="https://your-staging-sp.example.org/shibboleth" />
+        </PolicyRequirementRule>
+		<!-- Identifier attributes -->
+		<AttributeRule attributeID="eduPersonPrincipalName"         permitAny="true" />
+        <AttributeRule attributeID="eduPersonUniqueId"              permitAny="true" />
+        <AttributeRule attributeID="samlSubjectID"                  permitAny="true" />
+	    <AttributeRule attributeID="uid"                            permitAny="true" />
+		<AttributeRule attributeID="persistentId"                   permitAny="true" />
+        <AttributeRule attributeID="eduPersonTargetedID"            permitAny="true" />
+
+		<AttributeRule attributeID="sn"                             permitAny="true" /> 
+        <AttributeRule attributeID="givenName"                      permitAny="true" />
+		<AttributeRule attributeID="displayName"                    permitAny="true" />
+		<AttributeRule attributeID="mail"                           permitAny="true" />
+		<AttributeRule attributeID="cn"                             permitAny="true" />
+		
+        <AttributeRule attributeID="personalTitle"                  permitAny="true" />
+		<AttributeRule attributeID="homePostalAddress"              permitAny="true" />
+		<AttributeRule attributeID="telephoneNumber"                permitAny="true" />
+		<AttributeRule attributeID="o"                              permitAny="true" />
+		<AttributeRule attributeID="ou"                             permitAny="true" />
+        
+        <AttributeRule attributeID="eduPersonAssurance"             permitAny="true" />
+		<AttributeRule attributeID="eduPersonEntitlement"           permitAny="true" />
+		<AttributeRule attributeID="eduPersonAffiliation"           permitAny="true" />
+		<AttributeRule attributeID="eduPersonScopedAffiliation"     permitAny="true" />
+       
+		<AttributeRule attributeID="schacDateOfBirth"               permitAny="true" />
+        <AttributeRule attributeID="schacGender"                    permitAny="true" />
+        <AttributeRule attributeID="schacPlaceOfBirth"              permitAny="true" />
+        <AttributeRule attributeID="schacHomeOrganization"          permitAny="true" />
+        <AttributeRule attributeID="schacCountryOfResidence"        permitAny="true" />
+		
+        <AttributeRule attributeID="eduPersonOrgDN"                 permitAny="true" />
+        <AttributeRule attributeID="eduPersonOrgUnitDN"             permitAny="true" />
+      
+        <AttributeRule attributeID="dfnEduPersonBranchAndType"      permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonFeaturesOfStudy"    permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonFieldOfStudyString" permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonStudyBranch1"       permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonStudyBranch2"       permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonStudyBranch3"       permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonTermsOfStudy"       permitAny="true" />
+        <AttributeRule attributeID="dfnEduPersonTypeOfStudy"        permitAny="true" /> 
+    </AttributeFilterPolicy>
+
+    <!-- DEFAULT EXAMPLES -->
+    <!-- 
+        This file is an EXAMPLE policy file.  While the policy presented in this 
+        example file is illustrative of some simple cases, it relies on the names of
+        non-existent example services and the example attributes demonstrated in the
+        default attribute-resolver.xml file.
+
+        This example does contain some usable "general purpose" policies that may be
+        useful in conjunction with specific deployment choices, but those policies may
+        not be applicable to your specific needs or constraints.    
+    -->
+    <!-- Release home org signifier to everybody. -->
+    
+    <!--
+    <AttributeFilterPolicy id="alwaysRelease">
+        <PolicyRequirementRule xsi:type="ANY" />
+        
+        <AttributeRule attributeID="schacHomeOrganization" permitAny="true" />
+    </AttributeFilterPolicy>
+    -->
+
+    <!--
+    Example rule relying on a locally applied tag in metadata to trigger attribute
+    release of some specific attributes. Add additional attributes as desired.
+    -->
+    <!--
+	<AttributeFilterPolicy id="Per-Attribute-singleValued">
+	    <PolicyRequirementRule xsi:type="ANY" />
+	 
+	    <AttributeRule attributeID="eduPersonPrincipalName">
+	        <PermitValueRule xsi:type="EntityAttributeExactMatch"
+	            attributeName="http://shibboleth.net/ns/attributes/releaseAllValues"
+	            attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+	            attributeValue="eduPersonPrincipalName" />
+	    </AttributeRule>
+	 
+	    <AttributeRule attributeID="mail">
+	        <PermitValueRule xsi:type="EntityAttributeExactMatch"
+	            attributeName="http://shibboleth.net/ns/attributes/releaseAllValues"
+	            attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+	            attributeValue="mail" />
+	    </AttributeRule>
+	</AttributeFilterPolicy>
+    -->
+
+    <!--
+    Same as above but more efficient form for an attribute with multiple values.
+    -->
+    <!--
+    <AttributeFilterPolicy id="Per-Attribute-Affiliation">
+        <PolicyRequirementRule xsi:type="EntityAttributeExactMatch"
+            attributeName="http://shibboleth.net/ns/attributes/releaseAllValues"
+            attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            attributeValue="eduPersonScopedAffiliation" />
+     
+        <AttributeRule attributeID="eduPersonScopedAffiliation" permitAny="true" />
+    </AttributeFilterPolicy>
+    -->
+
+    <!--
+    Example rule for honoring Subject ID requirement tag in metadata.
+    The example supplies pairwise-id if subject-id isn't explicitly required.
+    -->
+    <!--
+    <AttributeFilterPolicy id="subject-identifiers">
+        <PolicyRequirementRule xsi:type="ANY" />
+
+        <AttributeRule attributeID="samlPairwiseID">
+            <PermitValueRule xsi:type="OR">
+                <Rule xsi:type="EntityAttributeExactMatch"
+                    attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                    attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+                    attributeValue="pairwise-id" />
+                <Rule xsi:type="EntityAttributeExactMatch"
+                    attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                    attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+                    attributeValue="any" />
+            </PermitValueRule>
+        </AttributeRule>
+
+        <AttributeRule attributeID="samlSubjectID">
+            <PermitValueRule xsi:type="EntityAttributeExactMatch"
+                attributeName="urn:oasis:names:tc:SAML:profiles:subject-id:req"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+                attributeValue="subject-id" />
+        </AttributeRule>
+    </AttributeFilterPolicy>
+    -->
+
+    <!-- Release an additional attribute to an SP. -->
+    <!--
+    <AttributeFilterPolicy id="example1">
+        <PolicyRequirementRule xsi:type="Requester" value="https://sp.example.org" />
+
+        <AttributeRule attributeID="uid" permitAny="true" />
+    </AttributeFilterPolicy>
+    -->
+
+    <!-- Release eduPersonScopedAffiliation to two specific SPs. -->
+    <!--
+    <AttributeFilterPolicy id="example2">
+        <PolicyRequirementRule xsi:type="OR">
+            <Rule xsi:type="Requester" value="https://sp.example.org" />
+            <Rule xsi:type="Requester" value="https://another.example.org/shibboleth" />
+        </PolicyRequirementRule>
+
+        <AttributeRule attributeID="eduPersonScopedAffiliation" permitAny="true" />
+    </AttributeFilterPolicy>
+    -->
+</AttributeFilterPolicyGroup>

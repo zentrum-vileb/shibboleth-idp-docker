@@ -1,0 +1,3 @@
+CLASSPATH=/opt/tomcat/bin/*
+JAVA_OPTS="$JAVA_OPTS -DENV=$ENV"
+CATALINA_OPTS='-XX:+UseG1GC -Xmx3000m'

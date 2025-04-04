@@ -1,0 +1,8 @@
+/.old
+/.vscode
+/logs
+/idp/container_files
+/backups
+.env
+*.tmp*
+README.internal.md

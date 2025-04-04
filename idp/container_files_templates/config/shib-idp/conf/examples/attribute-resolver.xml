@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+This file is a rudimentary example. While it is semi-functional, it isn't very
+interesting. It is here only as a starting point for your deployment process
+to avoid any dependency on components like an LDAP directory.
+
+Very few attribute definitions and data connectors are demonstrated, and the
+data is derived statically from the logged-in username and a static example
+connector.
+
+The file(s) in the examples directory contain more examples that involve more
+complex approaches. Deployers should refer to the documentation for a complete
+list of possible components and their options.
+-->
+<AttributeResolver
+        xmlns="urn:mace:shibboleth:2.0:resolver" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd">
+
+
+    <!-- ========================================== -->
+    <!--      Attribute Definitions                 -->
+    <!-- ========================================== -->
+
+    <!--
+    The EPPN is the "standard" federated username in higher ed.
+    For guidelines on the implementation of this attribute, refer
+    to the Shibboleth and eduPerson documentation. Above all, do
+    not expose a value for this attribute without considering the
+    long term implications. 
+    -->
+    <!--
+    <AttributeDefinition id="eduPersonPrincipalName" xsi:type="Scoped" scope="%{idp.scope}">
+        <InputAttributeDefinition ref="uid" />
+    </AttributeDefinition>
+    -->
+
+    <!--
+    The uid is the closest thing to a "standard" LDAP attribute
+    representing a local username, but you should generally *never*
+    expose uid to federated services, as it is rarely globally unique.
+    -->
+    <!-- 
+    <AttributeDefinition id="uid" xsi:type="PrincipalName" />
+    -->
+
+    <!--
+    In the rest of the world, the email address is the standard identifier,
+    despite the problems with that practice. Consider making the EPPN
+    value the same as your official email addresses whenever possible.
+    -->
+    <!--
+    <AttributeDefinition id="mail" xsi:type="Template">
+        <InputAttributeDefinition ref="uid" />
+        <Template>
+          <![CDATA[
+               ${uid}@example.org
+          ]]>
+        </Template>
+    </AttributeDefinition>
+    -->
+
+    <!--
+    This is an example of an attribute sourced from a data connector.
+    -->
+    <!--
+    <AttributeDefinition id="eduPersonScopedAffiliation" xsi:type="Scoped" scope="%{idp.scope}">
+        <InputDataConnector ref="staticAttributes" attributeNames="affiliation" />
+    </AttributeDefinition>
+    -->
+
+    <!-- ========================================== -->
+    <!--      EduPerson                             -->
+    <!-- ========================================== -->
+
+    <!-- ====================================================== -->
+    <!-- SCHAC - SCHema for ACademia                            -->
+    <!-- ====================================================== -->
+
+    <!-- Example: schacUserStatus -->
+    <!--
+    <AttributeDefinition xsi:type="ScriptedAttribute" id="schacUserStatus">
+        <InputDataConnector ref="archiveLDAP" />
+        <DisplayName xml:lang="de">Benutzerstatus</DisplayName>
+        <DisplayName xml:lang="en">Userstatus</DisplayName>
+        <DisplayDescription xml:lang="de">Status eines Benutzers für einen Dienst</DisplayDescription>
+        <DisplayDescription xml:lang="en">set of status of a person as user of services</DisplayDescription>
+        <AttributeEncoder xsi:type="SAML1String" name="urn:mace:terena.org:schac:attribut-def:schacUserStatus" />
+        <AttributeEncoder xsi:type="SAML2String" name="urn:oid:1.3.6.1.4.1.25178.1.2.19" friendlyName="schacUserStatus" />
+        <Script>
+            <![CDATA[
+                if (typeof entryDN != "undefined" && entryDN.getValues().size()> 0) {
+                    var prefix = "urn:schac:userStatus:de:aai.dfn.de:";
+                    var disabled= "ou=disabled,ou=users,ou=archive,dc=einrichtung,dc=de";
+                    var locked  = "ou=locked,ou=users,ou=archive,dc=einrichtung,dc=de";
+                                        var deleted = "ou=deleted,ou=users,ou=archive,dc=einrichtung,dc=de";
+ 
+                    for (i=0; i<entryDN.getValues().size(); i++) {
+                        var tmp = entryDN.getValues().get(i);
+ 
+                        if (tmp.endsWith(disabled)) {
+                            schacUserStatus.addValue(prefix + "idmStatus:disabled");
+                        }
+                        else if (tmp.endsWith(locked)) {
+                            schacUserStatus.addValue(prefix + "idmStatus:locked");
+                        }
+                        else if (tmp.endsWith(deleted)) {
+                            schacUserStatus.addValue(prefix + "idmStatus:deleted");
+                        }
+                        else {
+                            schacUserStatus.addValue(prefix + "idmStatus:active");
+                        }
+                    }
+                }
+            ]]>
+        </Script>
+    </AttributeDefinition>
+    -->
+
+
+    <!-- ========================================== -->
+    <!--      REFEDS Assurance Framework            -->
+    <!-- ========================================== -->
+
+
+    <!-- ========================================== -->
+    <!--      Identifier attributes                 -->
+    <!-- ========================================== -->
+
+    <!-- 
+        Example: Creating a SAML:SubjectID on the fly
+    -->
+    <!--
+        <AttributeDefinition id="subjectHash" xsi:type="ScriptedAttribute" dependencyOnly="true">
+            <InputDataConnector ref="myLDAP" attributeNames="%{idp.persistentId.sourceAttribute}" />
+            <Script><![CDATA[
+            var digestUtils = Java.type("org.apache.commons.codec.digest.DigestUtils");
+            var saltedHash  = digestUtils.sha256Hex(%{idp.persistentId.sourceAttribute}.getValues().get(0) + "%{idp.persistentId.salt}");
+            subjectHash.addValue(saltedHash);
+            ]]></Script>
+        </AttributeDefinition>
+    
+        <AttributeDefinition xsi:type="Scoped" id="samlSubjectID" scope="%{idp.scope}">
+            <InputAttributeDefinition ref="subjectHash" />
+        </AttributeDefinition>
+    -->
+
+    <!-- ========================================== -->
+    <!--      Data Connectors                       -->
+    <!-- ========================================== -->
+
+</AttributeResolver>
