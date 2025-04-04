@@ -1,0 +1,139 @@
+services:
+  # IDP service
+  idp:
+    restart: always
+    extra_hosts:
+        - host.docker.internal:host-gateway
+        - ${IDP_HOSTNAME}:host-gateway
+    expose:
+      - "${IDP_HOST_TOMCAT_HTTP_PORT}"
+      - "${IDP_HOST_TOMCAT_AJP_PORT}"
+    build:
+      context: ./idp/
+      args:
+        CONTAINER_UID: ${CONTAINER_UID}
+        CONTAINER_GID: ${CONTAINER_GID}
+    user: 
+      ${CONTAINER_UID}:${CONTAINER_GID}
+    volumes:
+      # Shibboleth IDP
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/conf:/opt/shibboleth-idp/conf
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/edit-webapp:/opt/shibboleth-idp/edit-webapp
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/flows:/opt/shibboleth-idp/flows
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/messages:/opt/shibboleth-idp/messages
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/metadata:/opt/shibboleth-idp/metadata
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/credentials/secrets.properties:/opt/shibboleth-idp/credentials/secrets.properties
+      # Tomcat
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_SHIBIDP}/views:/opt/shibboleth-idp/views
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_TOMCAT}:/opt/tomcat/conf
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_CONFIG_WWWROOT}:/opt/tomcat/webapps/ROOT
+      # Secrets (e.g. keystores and certs)
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_AAI}:/opt/certs/aai
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_TOMCAT}:/opt/certs/tomcat
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_REVERSEPROXY}:/opt/certs/reverse-proxy
+      - ${IDP_HOST_PATH_CONTAINER_FILES}/${IDP_HOST_SUBPATH_SECRETS_SHIBIDP}:/opt/certs/shib-idp
+      # Logs
+      - ${IDP_HOST_COMMON_LOG_PATH}/shib-idp:/opt/shibboleth-idp/logs
+      - ${IDP_HOST_COMMON_LOG_PATH}/tomcat:/opt/tomcat/logs
+      - ${IDP_HOST_COMMON_LOG_PATH}/supervisor:/var/log/supervisor
+    depends_on:
+      - mariadb
+    networks:
+      - front
+      - sql
+      - ldap
+    ports:
+      - ${IDP_HOST_TOMCAT_AJP_PORT}:${IDP_CONTAINER_TOMCAT_CONNECTOR_AJP_PORT}
+      # Debugging
+      - ${IDP_HOST_TOMCAT_HTTP_PORT}:${IDP_CONTAINER_TOMCAT_CONNECTOR_HTTP_PORT}
+
+  # SQL service for IDP (optional, if external)
+  mariadb:
+    image: mariadb:lts-noble
+    restart: always
+    expose:
+      - "${MARIADB_PORT_HOST}"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    command: "--wait_timeout=28800"
+    networks:
+      - sql
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - mariadb_conf:/etc/mysql/conf.d
+      - ${IDP_HOST_COMMON_LOG_PATH}/mariadb:/var/log/mysql
+      - ${MARIADB_PATH_INIT}:/docker-entrypoint-initdb.d
+    #Debugging
+    #ports:
+    # - "${MARIADB_PORT_HOST}:3306"
+
+# LDAP service for IDP (optional, if external DataConnector)
+  openldap:
+    build: 
+      context: ./ldap/
+    environment:
+      IDP_LDAP_BIND_BASE_DN: ${IDP_LDAP_BIND_BASE_DN}
+      IDP_LDAP_BASE_OU_SYSTEMUSERS: ${IDP_LDAP_BASE_OU_SYSTEMUSERS}
+      IDP_LDAP_BASE_OU_USERS: ${IDP_LDAP_BASE_OU_USERS}
+      IDP_LDAP_BIND_DN_ADMIN: ${IDP_LDAP_BIND_DN_ADMIN}
+      IDP_LDAP_ADMIN_PASSWORD: ${IDP_LDAP_ADMIN_PASSWORD}
+      IDP_LDAP_BIND_DN_IDP: ${IDP_LDAP_BIND_DN_IDP}
+      IDP_LDAP_IDPUSER_PASSWORD: ${IDP_LDAP_IDPUSER_PASSWORD}
+    restart: always
+    networks:
+     - ldap
+    #Debugging
+    #ports:
+    # - "389:389"
+    volumes:
+     - ldap_data:/var/lib/ldap
+     - ldap_conf:/etc/openldap/
+
+  # phpmyadmin for SQL service (optional)
+  phpmyadmin:
+    depends_on:
+      - mariadb
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - "8082:80"
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    networks:
+      - sql
+
+  # phpldapadmin for LDAP service (optional)
+  phpldapadmin:
+    depends_on:
+      - openldap
+    image: phpldapadmin/phpldapadmin:latest
+    restart: always
+    ports:
+      - "8083:8080"
+    environment:
+      LDAP_HOST: openldap
+      LDAP_BASE_DN: ${IDP_LDAP_BIND_BASE_DN}
+      LDAP_LOGIN_ATTR: cn
+      LDAP_ALLOW_GUEST: true
+      LDAP_USERNAME: ${IDP_LDAP_BIND_DN_ADMIN}
+      LDAP_PASSWORD: ${IDP_LDAP_ADMIN_PASSWORD}
+    networks:
+      - ldap
+
+networks:
+  front:
+    driver: bridge
+  ldap:
+    driver: bridge
+  sql:
+    driver: bridge
+
+volumes:
+  mariadb_data: {}
+  mariadb_conf: {}
+  ldap_data: {}
+  ldap_conf: {}

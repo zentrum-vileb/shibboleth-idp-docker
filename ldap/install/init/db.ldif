@@ -1,0 +1,61 @@
+##############################
+# Database structure
+##############################
+dn: cn=config
+objectClass: olcGlobal
+structuralObjectClass: olcGlobal
+cn: config
+
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+structuralObjectClass: olcSchemaConfig
+
+dn: olcDatabase={-1}frontend,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: {-1}frontend
+structuralObjectClass: olcDatabaseConfig
+
+dn: olcDatabase={0}config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: {0}config
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external
+ ,cn=auth" manage by * none
+structuralObjectClass: olcDatabaseConfig
+
+dn: olcDatabase={1}monitor,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: {1}monitor
+olcAccess: {0}to * 
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read
+  by * none
+structuralObjectClass: olcDatabaseConfig
+
+dn: olcDatabase={2}mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+structuralObjectClass: olcMdbConfig
+olcDatabase: {2}mdb
+olcDbDirectory: /var/lib/ldap
+olcSuffix: ${IDP_LDAP_BIND_BASE_DN}
+olcRootDN: ${IDP_LDAP_BIND_DN_ADMIN}
+olcRootPW: ${IDP_LDAP_ADMIN_PASSWORD}
+olcAccess: {0}to attrs=userPassword
+  by dn.exact="${IDP_LDAP_BIND_DN_ADMIN}" write
+  by anonymous auth
+  by self write
+  by * none
+olcAccess: {1}to dn.base=""
+  by * read
+olcAccess: {2}to dn.subtree="${IDP_LDAP_BASE_OU_USERS}" 
+  by dn.exact="${IDP_LDAP_BIND_DN_IDP}" read
+  by self write
+  by * none
+olcAccess: {3}to dn.subtree="${IDP_LDAP_BASE_OU_SYSTEMUSERS}" 
+  by self write
+  by * none
+olcAccess: {4}to *
+  by dn.exact="${IDP_LDAP_BIND_DN_ADMIN}" write
+  by * read
+olcDbIndex: objectClass eq,pres
+olcDbIndex: ${IDP_LDAP_OLC_DB_INDEX} eq,pres,sub

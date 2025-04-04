@@ -1,0 +1,5 @@
+<Context docBase="${IDP_CONTAINER_PATH_HOME}/war/idp.war"
+         privileged="true"
+         unpackWAR="true"
+         antiResourceLocking="false"
+         swallowOutput="true" />

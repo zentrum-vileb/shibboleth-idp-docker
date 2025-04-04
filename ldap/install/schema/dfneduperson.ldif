@@ -1,0 +1,90 @@
+# ======================================================================================================================================
+# dfnEduPerson (v.1.4-fixed)
+# Source: https://download.aai.dfn.de/schema/
+# Source: https://doku.tid.dfn.de/de:attributes#e-learning_und_dfn-spezifische_erweiterungen
+#
+# Fix: 
+# > Removed personalTitle (see https://doku.tid.dfn.de/de:elearning_attributes) 
+# > Use title from organizationalPerson or schacPersonalTitle from SCHAC instead
+# ======================================================================================================================================
+dn: cn=dfnEduPerson,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: dfnEduPerson
+olcObjectIdentifier: {0}dfnEduPersonRoot 1.3.6.1.4.1.22177.400.1.1
+olcObjectIdentifier: {1}dfnEduPersonAttributes dfnEduPersonRoot:3
+olcObjectIdentifier: {2}dfnEduPersonClasses dfnEduPersonRoot:4
+olcAttributeTypes: {0}( dfnEduPersonAttributes:1 NAME 'dfnEduPersonCostCenter'
+  DESC 'numeric or alphanumeric string that identifies a cost center' EQUALITY
+  caseExactMatch SUBSTR caseExactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.1
+ 21.1.15 )
+olcAttributeTypes: {1}( dfnEduPersonAttributes:2 NAME 'dfnEduPersonStudyBranch
+ 1' DESC 'numerically identifies a group of study branches in Germany accordin
+ g to the Statistisches Bundesamt' EQUALITY numericStringMatch ORDERING numeri
+ cStringOrderingMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.36{2} )
+olcAttributeTypes: {2}( dfnEduPersonAttributes:3 NAME 'dfnEduPersonStudyBranch
+ 2' DESC 'numerically identifies a group of field of studies in Germany accord
+ ing to the Statistisches Bundesamt' EQUALITY numericStringMatch ORDERING nume
+ ricStringOrderingMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.36{2} )
+olcAttributeTypes: {3}( dfnEduPersonAttributes:4 NAME 'dfnEduPersonStudyBranch
+ 3' DESC 'numeric or alphanumeric string that identifies a single field of stu
+ dy in Germany according to the Statistisches Bundesamt' EQUALITY caseIgnoreMa
+ tch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {4}( dfnEduPersonAttributes:5 NAME 'dfnEduPersonFieldOfStud
+ yString' DESC 'string that identifies field of study as it is named at the lo
+ cal institution' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SY
+ NTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {5}( dfnEduPersonAttributes:6 NAME 'dfnEduPersonFinalDegree
+ ' DESC 'numerically identifies a type of final degree in Germany ac cording t
+ o the Statistisches Bundesamt' EQUALITY numericStringMatch ORDERING numericSt
+ ringOrderingMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.36{2} )
+olcAttributeTypes: {6}( dfnEduPersonAttributes:7 NAME 'dfnEduPersonTypeOfStudy
+ ' DESC 'numerically identifies a type of study in Germany according to the St
+ atistisches Bundesamt' EQUALITY numericStringMatch ORDERING numericStringOrde
+ ringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.36{1} )
+olcAttributeTypes: {7}( dfnEduPersonAttributes:8 NAME 'dfnEduPersonTermsOfStud
+ y' DESC 'identifies how many terms in a single field of study a student has p
+ assed' EQUALITY caseExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1
+ .3.6.1.4.1.1466.115.121.1.26{6} )
+olcAttributeTypes: {8}( dfnEduPersonAttributes:9 NAME 'dfnEduPersonBranchAndDe
+ gree' DESC 'numerically identifies a field of study in correlation with the f
+ inal degree in Germany according to the Statistisches Bundesamt' EQUALITY cas
+ eExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115
+ .121.1.26{6} )
+olcAttributeTypes: {9}( dfnEduPersonAttributes:10 NAME 'dfnEduPersonBranchAndT
+ ype' DESC 'numerically identifies a type of a studybranch according to the St
+ atistisches Bundesamt' EQUALITY caseExactIA5Match SUBSTR caseExactIA5Substrin
+ gsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{10} )
+olcAttributeTypes: {10}( dfnEduPersonAttributes:11 NAME 'dfnEduPersonFeaturesO
+ fStudy' DESC 'complex string that specifies degree, type of study and the sin
+ gle fields of study with their type and terms using values according to the S
+ tatistisches Bundesamt' EQUALITY caseExactIA5Match SUBSTR caseExactIA5Substri
+ ngsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: {11}( dfnEduPersonAttributes:12 NAME 'dfnEduPersonLastIdChe
+ ck' DESC 'date of the last ID-based identity verification (format YYYYMMDDhhm
+ mssZ)' EQUALITY generalizedTimeMatch ORDERING generalizedTimeOrderingMatch SY
+ NTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+olcAttributeTypes: {12}( dfnEduPersonAttributes:13 NAME 'dfnEduPersonVerifiedM
+ obile' DESC 'verified personal mobile phone number that only can be modified 
+ in combination with an ID check' EQUALITY telephoneNumberMatch SUBSTR telepho
+ neNumberSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
+olcAttributeTypes: {13}( dfnEduPersonAttributes:14 NAME 'dfnEduPersonPkiIntegr
+ ity' DESC 'JWT confirming the integrity of specific attributes' EQUALITY case
+ ExactMatch SUBSTR caseExactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.
+ 15{64512} )
+olcAttributeTypes: {14}( dfnEduPersonAttributes:15 NAME 'dfnEduPersonLibraryPa
+ tronId' DESC 'library user Id/library card number' EQUALITY caseExactMatch SU
+ BSTR caseExactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {15}( dfnEduPersonAttributes:16 NAME 'dfnEduPersonLibraryUs
+ ergroup' DESC 'library user group' EQUALITY caseExactMatch SUBSTR caseExactSu
+ bstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {16}( dfnEduPersonAttributes:17 NAME 'dfnEduPersonLibraryHo
+ mebranch' DESC 'local library branch of the library user' EQUALITY caseExactM
+ atch SUBSTR caseExactSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcObjectClasses: {0}( dfnEduPersonClasses:1 NAME 'dfnEduPerson' SUP top AUXIL
+ IARY MAY ( dfnEduPersonCostCenter $ dfnEduPersonStudyBranch1 $ dfnEduPersonSt
+ udyBranch2 $ dfnEduPersonStudyBranch3 $ dfnEduPersonFieldOfStudyString $ dfnE
+ duPersonFinalDegree $ dfnEduPersonTypeOfStudy $ dfnEduPersonTermsOfStudy $ df
+ nEduPersonBranchAndDegree $ dfnEduPersonBranchAndType $ dfnEduPersonFeaturesO
+ fStudy $ dfnEduPersonLastIdCheck $ dfnEduPersonVerifiedMobile $ dfnEduPersonP
+ kiIntegrity $ dfnEduPersonLibraryPatronId $ dfnEduPersonLibraryUsergroup $ df
+ nEduPersonLibraryHomebranch ) )

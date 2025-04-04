@@ -1,0 +1,61 @@
+##############################
+# Organization
+##############################
+dn: ${IDP_LDAP_BIND_BASE_DN}
+o: ${IDP_LDAP_ORGANIZATION_NAME}
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+
+##############################
+# Organizational Units
+##############################
+# OU for sytemusers
+dn: ${IDP_LDAP_BASE_OU_SYSTEMUSERS}
+objectClass: organizationalUnit
+
+# OU for users
+dn: ${IDP_LDAP_BASE_OU_USERS}
+objectClass: organizationalUnit
+
+##############################
+# Users
+##############################
+dn: ${IDP_LDAP_BIND_DN_ADMIN}
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+userPassword: ${IDP_LDAP_ADMIN_PASSWORD}
+description: LDAP Admin
+
+dn: ${IDP_LDAP_BIND_DN_IDP}
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+userPassword: ${IDP_LDAP_IDPUSER_PASSWORD}
+description: IDP Service
+
+##############################
+# Testuser
+##############################
+dn: cn=max,ou=accounts,dc=test,dc=example,dc=org
+objectClass: dfnEduPerson
+objectClass: eduPerson
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: schacContactLocation
+objectClass: schacEmployeeInfo
+objectClass: schacEntryMetadata
+objectClass: schacLinkageIdentifiers
+objectClass: schacPersonalCharacteristics
+objectClass: schacUserEntitlements
+objectClass: top
+cn: max
+sn: Mustermann
+eduPersonAffiliation: affiliate
+eduPersonPrincipalName: max
+eduPersonUniqueId: 1@idp.example.org
+givenName: Max
+mail: max.mustermann@example.org
+schacCountryOfResidence: de
+uid: 1
+userPassword: ${IDP_LDAP_TESTUSER_PASSWORD}

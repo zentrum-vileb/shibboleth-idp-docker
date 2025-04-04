@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeResolver
+        xmlns="urn:mace:shibboleth:2.0:resolver" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd">
+
+    <!-- ========================================== -->
+    <!-- EduPerson                              	-->
+    <!-- ========================================== -->
+
+    <!-- TODO -->
+
+    <!-- ========================================== -->
+    <!-- organizationalPerson & inetOrgPerson       -->
+    <!-- ========================================== -->
+
+    <!--
+    The uid is the closest thing to a "standard" LDAP attribute
+    representing a local username, but you should generally *never*
+    expose uid to federated services, as it is rarely globally unique.
+    -->
+    <AttributeDefinition id="uid" xsi:type="PrincipalName" />
+
+    <!-- Generate displayName -->
+    <AttributeDefinition id="displayName" xsi:type="Template">
+        <InputDataConnector ref="myLDAP" attributeNames="givenName sn" />
+        <Template>${givenName} ${sn}</Template> 
+    </AttributeDefinition>
+
+    <!-- ====================================================== -->
+    <!-- SCHAC - SCHema for ACademia                            -->
+    <!-- ====================================================== -->
+
+    <!-- TODO -->
+
+    <!-- ========================================== -->
+    <!--      REFEDS Assurance Framework            -->
+    <!-- ========================================== -->
+
+    <!-- TODO -->
+
+    <!-- ========================================== -->
+    <!--      Identifier attributes                 -->
+    <!-- ========================================== -->
+
+    <!-- NON TARGETED IDENTIFIER -->
+
+    <!-- TODO -->
+
+    <!-- TARGETED IDENTIFIER -->
+    
+    <!-- Deprecated: ePTID / Enable for compatibility with older service providers 
+    <AttributeDefinition id="eduPersonTargetedID" xsi:type="SAML2NameID" nameIdFormat="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">
+        <InputDataConnector ref="sqlStore" attributeNames="persistentId"/>
+    </AttributeDefinition>
+    -->
+
+    <!-- SAML:pairwiseId -->
+    <AttributeDefinition xsi:type="Scoped" id="samlPairwiseID" scope="%{idp.scope}">
+        <InputDataConnector ref="sqlStore" attributeNames="persistentId"/>
+    </AttributeDefinition>
+
+ 
+    <!-- ========================================== -->
+    <!--      Data Connectors                       -->
+    <!-- ========================================== -->
+
+    <!-- LDAP Connector
+        Bitte beachten Sie unten im Data Connector "myLDAP" die Zeile "exportAttributes".
+        Dort werden all die Attribute automatisch aus dem IdM geholt, die im IdM genau so heißen,
+        wie der IdP sie in seiner Attribute Registry auch definiert hat. Für diese Attribute
+        brauchen Sie dann hier keine eigene Attributdefinition mehr. 
+        Analog verhält es sich mit dem Data Connector "staticAttributes" 
+    -->
+    <!-- 
+    Using CertificateTrust?
+    Add parameter to Dataconnector:
+     - trustFile="%{idp.attribute.resolver.LDAP.trustCertificates}"
+    -->
+    <DataConnector id="myLDAP" xsi:type="LDAPDirectory"
+        ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
+        baseDN="%{idp.attribute.resolver.LDAP.baseDN}"
+        principal="%{idp.attribute.resolver.LDAP.bindDN}"
+        principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}"
+        useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS:true}"
+        connectTimeout="%{idp.attribute.resolver.LDAP.connectTimeout}"
+        responseTimeout="%{idp.attribute.resolver.LDAP.responseTimeout}"
+        failFastInitialize="%{idp.pool.LDAP.failFastInitialize:false}"
+        exportAttributes="givenName sn mail eduPersonAffiliation"
+    >
+        <!-- The following line is required to access operational attributes from the IdM -->
+        <!--<ReturnAttributes>* +</ReturnAttributes>-->
+        <FilterTemplate>
+            <![CDATA[
+                %{idp.attribute.resolver.LDAP.searchFilter}
+            ]]>
+        </FilterTemplate>
+        <ConnectionPool
+            minPoolSize="%{idp.pool.LDAP.minSize:3}"
+            maxPoolSize="%{idp.pool.LDAP.maxSize:10}"
+            blockWaitTime="%{idp.pool.LDAP.blockWaitTime:PT3S}"
+            validatePeriodically="%{idp.pool.LDAP.validatePeriodically:true}"
+            validateTimerPeriod="%{idp.pool.LDAP.validatePeriod:PT5M}"
+            expirationTime="%{idp.pool.LDAP.idleTime:PT10M}" />
+    </DataConnector>
+
+    <!-- Static Attributes -->
+    <DataConnector id="staticAttributes" 
+        xsi:type="Static" 
+        exportAttributes="schacHomeOrganization eduPersonAssurance"
+    >
+        <Attribute id="schacHomeOrganization">
+            <Value>%{idp.scope}</Value>
+        </Attribute>
+        <Attribute id="eduPersonAssurance">
+            <Value>https://refeds.org/assurance</Value>
+        </Attribute>
+    </DataConnector>
+    
+    <!-- Internal SQL -->
+    <DataConnector id="sqlStore"
+        xsi:type="StoredId"
+        generatedAttributeID="persistentId"
+        salt="%{idp.persistentId.salt}"
+        encoding="%{idp.persistentId.encoding:BASE32}"
+        >
+        <InputAttributeDefinition ref="%{idp.persistentId.sourceAttribute}" />
+        <BeanManagedConnection>shibboleth.MySQLDataSource</BeanManagedConnection>
+    </DataConnector>
+</AttributeResolver>
