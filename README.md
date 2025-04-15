@@ -5,6 +5,7 @@ We cannot provide any support or warranty.
 This repository is not maintained.
 
 # Docker
+This setup uses Almalinux(-Minimal), Tomcat, OpenJDK, OpenLDAP, MariaDB.
 
 ## Recommendations
 
@@ -45,13 +46,18 @@ Set permissions on host.
 
 2. Init config, create user and group, update permissions for mounted folders
 
-    `sh compose.sh update --config`
+    ```sh
+    sh compose.sh update --config
+    ```
 
 3. Start the containers, e.g.
-    - `docker compose up` 
-    
+    ```sh
+    docker compose up
+    ``` 
     *or* 
-    - `sh compose.sh up`
+    ```
+    sh compose.sh up
+    ```
 
 ## Build
 
@@ -79,7 +85,7 @@ Not part of this setup:
 - reverse proxy (e.g. apache): 80 / 443 / 8443
 
 # Migration from existing IDPv4
-To use external services (sql, ldap), e.g. on docker host or different servers, ensure that these can be access from the container (e.g. ip rules)
+To use external services (sql, ldap), e.g. on docker host or different servers, ensure that these can be accessed from the container (e.g. ip rules)
 
 ## Shibboleth SQL
 - Convert character sets, set new collation, e.g.
@@ -194,6 +200,8 @@ sh compose.sh update --war
 - If you receive "no such file" errors for scripts on container startup, check file line endings of `*.sh` scripts, e.g. if you built on windows/wsl, make sure to use unix file endings (LF) instead of windows (CRLF); rebuild images after cleaning built cache:
   ```sh
   docker builder prune
+  ```
+  ```sh
   docker compose up --build
   ```
 # Sources
@@ -213,14 +221,20 @@ Sources for documentation and/or docker images of shibboleth idp that might be o
 **SWITCHaai**
 - https://help.switch.ch/aai/guides/idp/
 
-## Docker
+## Other Docker Images
+
+**DAASI**
+- https://gitlab.daasi.de/shibboleth-identity-provider/shibboleth-identity-provider-baseimage
+[Debian 12, Tomcat, OpenJDK, PostgreSQL/MariaDB, Nginx]
 
 **TIER Incommon internet2**
 - https://github.internet2.edu/docker/shib-idp
+[Rockylinux, Amazon Corretto]
 
 **ZIB (Zuse Institute Berlin)**
 - https://git.zib.de/tweiss/shibboleth-idp/
+[Debian, Tomcat, OpenJDK]
 
 **Ian Young**
 - https://github.com/iay/shibboleth-idp-docker
-
+[Amazon Linux, Amazon Corretto]
