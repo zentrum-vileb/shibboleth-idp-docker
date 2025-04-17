@@ -7,7 +7,7 @@ FROM almalinux:9.5-minimal AS shibidp_base
 # VERSION SETTINGS
 ######################################
 ENV TOMCAT_MAJOR=10 \
-    TOMCAT_VERSION=10.1.39 \
+    TOMCAT_VERSION=10.1.40 \
     IDP_VERSION=5.1.4 \
     JAKARTA_JSTL_VERSION=3.0.1 \
     JAKARTA_JSTL_API_VERSION=3.0.2
