@@ -13,6 +13,7 @@ services:
       args:
         CONTAINER_UID: ${CONTAINER_UID}
         CONTAINER_GID: ${CONTAINER_GID}
+    image: ${DOCKER_REGISTRY_IDP_HOST}/${DOCKER_REGISTRY_IDP_PROJECT}/${DOCKER_REGISTRY_IDP_REPO}:${DOCKER_REGISTRY_IDP_TAG}
     user: 
       ${CONTAINER_UID}:${CONTAINER_GID}
     volumes:
@@ -137,3 +138,4 @@ volumes:
   mariadb_conf: {}
   ldap_data: {}
   ldap_conf: {}
+
