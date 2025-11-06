@@ -7,8 +7,8 @@ FROM almalinux:9-minimal AS shibidp_base
 # VERSION SETTINGS
 ######################################
 ENV TOMCAT_MAJOR=10 \
-    TOMCAT_VERSION=10.1.44 \
-    IDP_VERSION=5.1.5 \
+    TOMCAT_VERSION=10.1.48 \
+    IDP_VERSION=5.1.6 \
     JAKARTA_JSTL_VERSION=3.0.1 \
     JAKARTA_JSTL_API_VERSION=3.0.2
 
@@ -262,4 +262,5 @@ HEALTHCHECK --interval=5m --timeout=30s \
 # CONTAINER STARTUP
 ######################################
 CMD ["/usr/bin/startup.sh"]
+
 

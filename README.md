@@ -5,7 +5,46 @@ We cannot provide any support or warranty.
 This repository is not maintained.
 
 # Docker
+
+## Images
 This setup uses Almalinux(-Minimal), Tomcat, OpenJDK, OpenLDAP, MariaDB.
+
+### Local Registry (optional)
+
+Login, e.g. with robot account
+```sh
+docker login harbor.example.org
+```
+
+Build and tag
+```sh
+docker build -t harbor.example.org/shib/shib-idp:5.1.6 ./idp
+docker build -t harbor.example.org/shib/shib-idp-ldap:1.0 ./ldap
+```
+
+Push
+```sh
+docker push harbor.example.org/shib/shib-idp:5.1.6
+docker push harbor.example.org/shib/shib-idp-ldap:1.0
+```
+
+Sign image and push signature to registry (with Cosign)
+```sh
+cosign sign --tlog-upload=false --key shib.key harbor.example.org/shib/shib-idp@sha256:<digest>
+cosign sign --tlog-upload=false --key shib.key harbor.example.org/shib/shib-idp-ldap@sha256:<digest>
+```
+
+*Note: You might need to change terminals on cross-platform as some terminal configurations do not send authorization header.*
+
+Verify images (with Cosign)
+```sh
+cosign verify --key shib.pub <image-reference> --insecure-ignore-tlog=true
+```
+
+View Rekor Sigstore Log entry (Rekor CLI)
+```sh
+rekor-cli get --rekor_server https://rekor.sigstore.dev --log-index <log-index>
+```
 
 ## Recommendations
 
@@ -13,7 +52,7 @@ This setup uses Almalinux(-Minimal), Tomcat, OpenJDK, OpenLDAP, MariaDB.
 - Time synchronsation on host (NTP/PTP service or similar running on host)
   - e.g. ntp, chrony
 - Reverse proxy setup (incl. SSL), e.g. Apache or Nginx 
-  [or integrate here]
+  [or integrate in compose setup here]
 
 ## Compose
 
@@ -238,3 +277,4 @@ Sources for documentation and/or docker images of shibboleth idp that might be o
 **Ian Young**
 - https://github.com/iay/shibboleth-idp-docker
 [Amazon Linux, Amazon Corretto]
+
