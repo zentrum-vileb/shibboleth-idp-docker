@@ -7,7 +7,7 @@ services:
         - ${IDP_HOSTNAME}:host-gateway
     expose:
       - "${IDP_HOST_TOMCAT_HTTP_PORT}"
-      - "${IDP_HOST_TOMCAT_AJP_PORT}"
+      - "${IDP_HOST_TOMCAT_AJP_PORT_EXPOSE}"
     build:
       context: ./idp/
       args:
